@@ -1,4 +1,4 @@
-# fne-front-ts
+# FNE Front End with Vue CLI - VueTify - TypeScript
 
 ## Project setup
 ```
