@@ -193,7 +193,8 @@ export default class PersonNoticeInput extends Vue {
   ];
   dateRules = [
     (v: any) => (v && v.length == 4) || "Max 4 caractères",
-    (v: any) => /([1-2]([0-9]{3}))/.test(v) || "La date n'est pas valide"
+    (v: any) =>
+      /([1-2]([0-9]{2})([x]|[0-9]))/.test(v) || "La date n'est pas valide"
   ];
 
   async mounted() {
@@ -203,11 +204,11 @@ export default class PersonNoticeInput extends Vue {
       .all([apiReqLangues, apiReqCountires])
       .then(
         axios.spread((langueResponse, countryResponse) => {
-          for (const itemLangue of langueResponse.data.results.bindings) {
-            this.apiLangues.push(itemLangue.itemLabel.value);
+          for (const itemLangue of langueResponse.data) {
+            this.apiLangues.push(itemLangue.langueName);
           }
-          for (const itemCountry of countryResponse.data.results.bindings) {
-            this.apiCountries.push(itemCountry.itemLabel.value);
+          for (const itemCountry of countryResponse.data) {
+            this.apiCountries.push(itemCountry.countryName);
           }
         })
       )
