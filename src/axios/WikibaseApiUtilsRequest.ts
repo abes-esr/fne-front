@@ -9,4 +9,8 @@ export abstract class WikibaseApiUtilsRequest {
   public static async getLangues(): Promise<ApiResponse> {
     return await http.get<ApiResponse>("/person/langues");
   }
+
+  public static async findItem(itemName: string): Promise<ApiResponse> {
+    return await http.get<ApiResponse>("/search/" + itemName);
+  }
 }

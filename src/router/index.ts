@@ -18,7 +18,7 @@ const routes: Array<RouteConfig> = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/PersonNoticeView.vue")
-  },
+  }
 ];
 
 const router = new VueRouter({

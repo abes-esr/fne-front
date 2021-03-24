@@ -17,7 +17,6 @@
       <v-row class="text-center">
         <v-col md="8" offset-md="2">
           <person-notice-input
-            :resFromApi="resFromApi"
             @post-personnotice-action="postPersonNoticeAction"
             @post-personnotice-action-success="postPersonNoticeActionSuccess"
             @post-personnotice-action-error="postPersonNoticeActionError"
