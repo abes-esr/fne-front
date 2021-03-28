@@ -13,4 +13,8 @@ export abstract class WikibaseApiUtilsRequest {
   public static async findItem(itemName: string): Promise<ApiResponse> {
     return await http.get<ApiResponse>("/search/" + itemName);
   }
+
+  public static async getItemDescript(itemId: string): Promise<ApiResponse> {
+    return await http.get<ApiResponse>("/item/description/" + itemId);
+  }
 }

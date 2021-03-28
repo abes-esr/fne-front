@@ -7,4 +7,8 @@ export abstract class PersonNoticeRequest {
   ): Promise<ApiResponse> {
     return await http.post<ApiResponse>("/person", personNotice);
   }
+
+  public static async getPersonNotice(itemId: string): Promise<ApiResponse> {
+    return await http.get<ApiResponse>("/person/" + itemId);
+  }
 }

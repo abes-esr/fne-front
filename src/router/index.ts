@@ -7,17 +7,30 @@ Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Home",
+    name: "home",
     component: Home
   },
   {
     path: "/person-notice",
-    name: "Person Notice",
+    name: "person-notice",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/PersonNoticeView.vue")
+  },
+  {
+    path: "/person-notice/edit/:itemId",
+    name: "edit-person-notice",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/PersonNoticeView.vue")
+  },
+  {
+    path: "/:notFound(.*)",
+    redirect: "/"
   }
 ];
 

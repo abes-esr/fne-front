@@ -1,7 +1,7 @@
 <template>
   <v-app-bar app color="primary" dark>
     <v-toolbar-title
-      @click="$router.push({ name: 'Home' }).catch(() => {})"
+      @click="$router.push({ name: 'home' }).catch(() => {})"
       class="display-1 Bold text"
       style="cursor:pointer"
       >{{ logo }}
@@ -28,8 +28,8 @@ import SearchNavbar from "@/components/navigation-components/SearchNavbar.vue";
 export default class NavbarVisitor extends Vue {
   logo = "FNE";
   links = [
-    {'namePage': 'Home', 'route': '/'},
-    {'namePage': 'Personne Notice', 'route': '/person-notice'},
+    { namePage: "home", route: "/" },
+    { namePage: "person-notice", route: "/person-notice" }
   ];
 }
 </script>

@@ -17,7 +17,5 @@
 import { Component, Vue } from "vue-property-decorator";
 
 @Component
-export default class NavbarLoged extends Vue {
-  
-}
+export default class NavbarLoged extends Vue {}
 </script>

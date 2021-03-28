@@ -112,14 +112,14 @@
             <v-select
               required
               :rules="formRules"
-              :items="apiLangues"
+              :items="langues"
               v-model.trim="personNotice.langue"
               label="Langue de la personne"
             ></v-select>
             <v-select
               required
               :rules="formRules"
-              :items="apiCountries"
+              :items="countries"
               v-model="personNotice.country"
               label="Pays associé à la personne"
             ></v-select>
@@ -150,7 +150,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Emit, Watch } from "vue-property-decorator";
+import { Component, Vue, Emit, Watch, Prop } from "vue-property-decorator";
 import { PersonNoticeRequest } from "@/axios/PersonNoticeRequest";
 import { WikibaseApiUtilsRequest } from "@/axios/WikibaseApiUtilsRequest";
 import axios from "axios";
@@ -170,23 +170,15 @@ interface Person {
   components: {}
 })
 export default class PersonNoticeInput extends Vue {
+  @Prop() readonly personNotice!: Person;
+  @Prop() readonly langues!: string[];
+  @Prop() readonly countries!: string[];
   valid = true;
   dateMenuDead = false;
   dateMenuBirth = false;
   dateBirthYearOnly = false;
   dateDeadYearOnly = false;
-  personNotice: Person = {
-    instantOf: "Personne - RDA",
-    firstName: "",
-    lastName: "",
-    dateBirth: "",
-    dateDead: "",
-    langue: "",
-    country: "",
-    source: ""
-  };
-  apiLangues: string[] = [];
-  apiCountries: string[] = [];
+
   formRules = [
     (v: any) => !!v || "ce champ ne doit pas être vide",
     (v: any) => (v && v.length >= 4) || "Min 4 caractères"
@@ -196,26 +188,6 @@ export default class PersonNoticeInput extends Vue {
     (v: any) =>
       /([1-2]([0-9]{2})([x]|[0-9]))/.test(v) || "La date n'est pas valide"
   ];
-
-  async mounted() {
-    const apiReqLangues = await WikibaseApiUtilsRequest.getLangues();
-    const apiReqCountires = await WikibaseApiUtilsRequest.getCounties();
-    await axios
-      .all([apiReqLangues, apiReqCountires])
-      .then(
-        axios.spread((langueResponse, countryResponse) => {
-          for (const itemLangue of langueResponse.data) {
-            this.apiLangues.push(itemLangue.langueName);
-          }
-          for (const itemCountry of countryResponse.data) {
-            this.apiCountries.push(itemCountry.countryName);
-          }
-        })
-      )
-      .catch(error => {
-        console.log(error.message);
-      });
-  }
 
   get formValid(): Vue & { validate: () => boolean } {
     return this.$refs.noticeForm as Vue & { validate: () => boolean };
@@ -230,16 +202,12 @@ export default class PersonNoticeInput extends Vue {
     return this.personNotice.dateDead;
   }
 
-  async validate(): Promise<void> {
+  validate(): void {
     if (this.formValid.validate()) {
-      this.createNewPersonNoticeAction();
-      await PersonNoticeRequest.createPersonNotice(this.personNotice)
-        .then(res => {
-          this.createNewPersonNotice(res.data);
-        })
-        .catch(err => this.createNewPersonNoticeWithError(err.message));
+      this.createNewPersonNoticeAction(this.personNotice);
     }
   }
+
   reset(): void {
     this.formReset.reset();
   }
@@ -254,19 +222,9 @@ export default class PersonNoticeInput extends Vue {
     this.personNotice.dateDead = "";
   }
 
-  @Emit("post-personnotice-action-success")
-  createNewPersonNotice(person: any) {
-    return person;
-  }
-
   @Emit("post-personnotice-action")
-  createNewPersonNoticeAction() {
-    return null;
-  }
-
-  @Emit("post-personnotice-action-error")
-  createNewPersonNoticeWithError(errorMessage: any) {
-    return errorMessage;
+  createNewPersonNoticeAction(person: Person) {
+    return person;
   }
 }
 </script>

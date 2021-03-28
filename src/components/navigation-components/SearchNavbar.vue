@@ -66,8 +66,32 @@ export default class SearchNavbar extends Vue {
   }
   // Todo
   @Watch("select")
-  selectItem() {
-    console.log(this.noticeList.find(v => v.snippet == this.select));
+  async selectItem() {
+    const noticeIdComplete = this.noticeList.find(v => v.snippet == this.select)
+      ?.title;
+    const noticeId = noticeIdComplete?.substring(
+      noticeIdComplete?.lastIndexOf(":") + 1,
+      noticeIdComplete?.length
+    );
+    if (typeof noticeId == "string") {
+      const itemDescription = await WikibaseApiUtilsRequest.getItemDescript(noticeId)
+        .then(res => {
+          if (res.status === 200) {
+            return res.data.value;
+          }
+        })
+        .catch(err => console.log(err.message));
+      if (itemDescription === "Personne - RDA") {
+        await this.$router.push({
+          name: "edit-person-notice",
+          params: { itemId: noticeId }
+        });
+      } else {
+        await this.$router.push({
+          name: "home"
+        });
+      }
+    }
   }
 }
 </script>
