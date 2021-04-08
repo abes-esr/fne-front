@@ -1,9 +1,11 @@
 <template>
   <div class="home">
-    <v-container mt="30">
+    <loading-page v-if="loadingPage"></loading-page>
+    <v-container mt="30" v-else>
       <v-row class="text-center">
         <v-col cols="12">
           <h1>Notice : Personne - RDA</h1>
+          <h2 v-if="personNotice.ppn !== ''">PPN: {{ personNotice.ppn }}</h2>
         </v-col>
         <v-col cols="12">
           <error-api-response v-if="resFromApi && errorApi !== ''">
@@ -21,6 +23,7 @@
             :langues="apiLangues"
             :countries="apiCountries"
             @post-personnotice-action="postPersonNoticeAction"
+            @put-personnotice-action-update="putPersonNoticeActionUpdate"
           ></person-notice-input>
         </v-col>
       </v-row>
@@ -30,7 +33,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import PersonNoticeInput from "@/components/notice-components/PersonNoticeInput.vue";
+import PersonNoticeInput from "@/components/notice-components/person-notice/PersonNoticeInput.vue";
 import ErrorApiResponse from "@/components/base-components/ErrorApiResponse.vue";
 import SuccessApiResponse from "@/components/base-components/SuccessApiResponse.vue";
 import { WikibaseApiUtilsRequest } from "@/axios/WikibaseApiUtilsRequest";
@@ -39,6 +42,7 @@ import { PersonNoticeRequest } from "@/axios/PersonNoticeRequest";
 
 interface Person {
   instantOf: string;
+  ppn: string;
   firstName: string;
   lastName: string;
   dateBirth: string;
@@ -55,31 +59,39 @@ interface Person {
     PersonNoticeInput
   }
 })
-export default class PersonNotice extends Vue {
+export default class PersonNoticeView extends Vue {
   resFromApi = false;
   errorApi = "";
   successApi = "";
-  personNoticeDescription = "";
+  loadingPage = false;
 
   apiLangues: string[] = [];
   apiCountries: string[] = [];
 
   personNotice: Person = {
     instantOf: "Personne - RDA",
+    ppn: "",
     firstName: "",
     lastName: "",
     dateBirth: "",
     dateDead: "",
     langue: "",
-    country: "France",
+    country: "",
     source: ""
   };
+
+  created() {
+    if (this.$route.params.itemId !== undefined) {
+      this.loadingPage = true;
+    }
+  }
+
   async mounted() {
-    console.log(this.$route.params.itemId);
     const apiReqLangues = await WikibaseApiUtilsRequest.getLangues();
     const apiReqCountires = await WikibaseApiUtilsRequest.getCounties();
+    const requeteList = [apiReqLangues, apiReqCountires];
     await axios
-      .all([apiReqLangues, apiReqCountires])
+      .all(requeteList)
       .then(
         axios.spread((langueResponse, countryResponse) => {
           for (const itemLangue of langueResponse.data) {
@@ -95,7 +107,7 @@ export default class PersonNotice extends Vue {
       });
 
     if (this.$route.params.itemId !== undefined) {
-      console.log("OK Route Param");
+      await this.personNoticeByItemId(this.$route.params.itemId);
     }
   }
 
@@ -120,9 +132,61 @@ export default class PersonNotice extends Vue {
       });
   }
 
+  async personNoticeByItemId(itemId: string) {
+    this.loadingPage = true;
+    await PersonNoticeRequest.getPersonNotice(itemId)
+      .then(res => {
+        this.personNotice = res.data;
+        this.loadingPage = false;
+      })
+      .catch(err => {
+        console.log(err.message);
+        this.loadingPage = false;
+        this.$router.push({
+          name: "not-found",
+          params: { messageCustom: "Cette notice n'existe pas" }
+        });
+      });
+  }
+
+  async putPersonNoticeActionUpdate(personNoticeUpdate: any): Promise<void> {
+    this.resFromApi = false;
+    this.errorApi = "";
+    this.successApi = "";
+    await PersonNoticeRequest.updatePersonNotice(personNoticeUpdate)
+      .then(res => {
+        this.resFromApi = true;
+        if (res.data.status == "OK") {
+          const url = "http://fne-test.abes.fr/wiki/Item:" + res.data.itemId;
+          this.successApi =
+            "Votre notice a envoyé à Wikibase avec succès: " + url;
+        } else if (res.data.status == "Doublons") {
+          this.errorApi = "Erreur doublons: " + res.data.itemId;
+        }
+      })
+      .catch(err => {
+        this.resFromApi = true;
+        this.errorApi = err.message;
+      });
+  }
+
   @Watch("$route")
   changeRouterParams() {
-    console.log(this.$route.params.itemId);
+    if (this.$route.params.itemId !== undefined) {
+      this.personNoticeByItemId(this.$route.params.itemId);
+    } else {
+      this.personNotice = {
+        instantOf: "Personne - RDA",
+        ppn: "",
+        firstName: "",
+        lastName: "",
+        dateBirth: "",
+        dateDead: "",
+        langue: "",
+        country: "",
+        source: ""
+      };
+    }
   }
 }
 </script>

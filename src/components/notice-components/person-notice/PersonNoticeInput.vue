@@ -16,6 +16,7 @@
               counter
               label="Nom"
               required
+              clearable
             ></v-text-field>
             <v-text-field
               v-model.trim="personNotice.lastName"
@@ -24,6 +25,7 @@
               counter
               label="Prénom"
               required
+              clearable
             ></v-text-field>
 
             <v-text-field
@@ -34,6 +36,7 @@
               counter
               label="Date de naissance"
               prepend-inner-icon="mdi-calendar"
+              clearable
             ></v-text-field>
 
             <v-layout row wrap v-else-if="!dateBirthYearOnly">
@@ -49,10 +52,14 @@
                 <template v-slot:activator="{ on }">
                   <v-text-field
                     readonly
+                    required
+                    :rules="formRules"
                     :value="addDateBirth"
                     v-on="on"
                     label="Date de naissance"
                     prepend-inner-icon="mdi-calendar"
+                    append-icon="mdi-close-circle"
+                    @click:append="cleanDateBirth"
                   ></v-text-field>
                 </template>
                 <v-date-picker
@@ -76,6 +83,7 @@
               counter
               label="Date de décès"
               prepend-inner-icon="mdi-calendar"
+              clearable
             ></v-text-field>
             <v-layout row wrap v-else-if="!dateDeadYearOnly">
               <v-menu
@@ -94,6 +102,8 @@
                     v-on="on"
                     label="Date de décès"
                     prepend-inner-icon="mdi-calendar"
+                    append-icon="mdi-close-circle"
+                    @click:append="cleanDateDead"
                   ></v-text-field>
                 </template>
                 <v-date-picker
@@ -110,21 +120,20 @@
             ></v-checkbox>
 
             <v-select
-              required
-              :rules="formRules"
+              clearable
               :items="langues"
               v-model.trim="personNotice.langue"
               label="Langue de la personne"
             ></v-select>
             <v-select
-              required
-              :rules="formRules"
+              clearable
               :items="countries"
               v-model="personNotice.country"
               label="Pays associé à la personne"
             ></v-select>
             <v-text-field
               required
+              clearable
               :rules="formRules"
               v-model.trim="personNotice.source"
               counter
@@ -150,13 +159,22 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Emit, Watch, Prop } from "vue-property-decorator";
-import { PersonNoticeRequest } from "@/axios/PersonNoticeRequest";
-import { WikibaseApiUtilsRequest } from "@/axios/WikibaseApiUtilsRequest";
-import axios from "axios";
+import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 
 interface Person {
   instantOf: string;
+  ppn: string;
+  firstName: string;
+  lastName: string;
+  dateBirth: string;
+  dateDead: string;
+  langue: string;
+  country: string;
+  source: string;
+}
+
+interface PersonUpdate {
+  itemId: string;
   firstName: string;
   lastName: string;
   dateBirth: string;
@@ -178,6 +196,16 @@ export default class PersonNoticeInput extends Vue {
   dateMenuBirth = false;
   dateBirthYearOnly = false;
   dateDeadYearOnly = false;
+  personNoticeUpdate: PersonUpdate = {
+    itemId: "",
+    firstName: "",
+    lastName: "",
+    dateBirth: "",
+    dateDead: "",
+    langue: "",
+    country: "",
+    source: ""
+  };
 
   formRules = [
     (v: any) => !!v || "ce champ ne doit pas être vide",
@@ -204,7 +232,21 @@ export default class PersonNoticeInput extends Vue {
 
   validate(): void {
     if (this.formValid.validate()) {
-      this.createNewPersonNoticeAction(this.personNotice);
+      if (this.$route.params.itemId !== undefined) {
+        this.personNoticeUpdate = {
+          itemId: this.$route.params.itemId,
+          firstName: this.personNotice.firstName,
+          lastName: this.personNotice.lastName,
+          dateBirth: this.personNotice.dateBirth,
+          dateDead: this.personNotice.dateDead,
+          langue: this.personNotice.langue,
+          country: this.personNotice.country,
+          source: this.personNotice.source
+        };
+        this.updatePersonNoticeAction(this.personNoticeUpdate);
+      } else {
+        this.createNewPersonNoticeAction(this.personNotice);
+      }
     }
   }
 
@@ -224,6 +266,11 @@ export default class PersonNoticeInput extends Vue {
 
   @Emit("post-personnotice-action")
   createNewPersonNoticeAction(person: Person) {
+    return person;
+  }
+
+  @Emit("put-personnotice-action-update")
+  updatePersonNoticeAction(person: PersonUpdate) {
     return person;
   }
 }

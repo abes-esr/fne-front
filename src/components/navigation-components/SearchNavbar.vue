@@ -5,6 +5,7 @@
     :items="items"
     :search-input.sync="search"
     @change="items = []"
+    @keypress.enter="noticeListPageSearch"
     v-click-outside="cleanItemList"
     class="mx-4"
     color="error"
@@ -58,6 +59,17 @@ export default class SearchNavbar extends Vue {
 
   cleanItemList() {
     this.items = [];
+    this.select = "";
+  }
+
+  noticeListPageSearch() {
+    if (this.search !== "" && this.$route.params.term !== this.search) {
+      this.$router.push({
+        name: "notice-list",
+        params: { term: this.search }
+      });
+      this.search = "";
+    }
   }
 
   @Watch("search")
@@ -74,18 +86,27 @@ export default class SearchNavbar extends Vue {
       noticeIdComplete?.length
     );
     if (typeof noticeId == "string") {
-      const itemDescription = await WikibaseApiUtilsRequest.getItemDescript(noticeId)
+      const itemDescription: string = await WikibaseApiUtilsRequest.getItemDescript(
+        noticeId
+      )
         .then(res => {
           if (res.status === 200) {
             return res.data.value;
           }
         })
         .catch(err => console.log(err.message));
+
+      /*eslint no-empty-function: "error"*/
+      /*eslint-env es6*/
       if (itemDescription === "Personne - RDA") {
-        await this.$router.push({
-          name: "edit-person-notice",
-          params: { itemId: noticeId }
-        });
+        await this.$router
+          .push({
+            name: "person-notice-detail",
+            params: { itemId: noticeId }
+          })
+          .catch(() => {
+            // do nothing same page.
+          });
       } else {
         await this.$router.push({
           name: "home"
