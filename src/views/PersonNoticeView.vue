@@ -106,7 +106,7 @@ export default class PersonNoticeView extends Vue {
         console.log(error.message);
       });
 
-    if (this.$route.params.itemId !== undefined) {
+    if (typeof this.$route.params.itemId !== "undefined") {
       await this.personNoticeByItemId(this.$route.params.itemId);
     }
   }
@@ -172,7 +172,7 @@ export default class PersonNoticeView extends Vue {
 
   @Watch("$route")
   changeRouterParams() {
-    if (this.$route.params.itemId !== undefined) {
+    if (typeof this.$route.params.itemId !== "undefined") {
       this.personNoticeByItemId(this.$route.params.itemId);
     } else {
       this.personNotice = {

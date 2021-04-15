@@ -42,7 +42,7 @@ export default class SearchNavbar extends Vue {
   }
   querySelections(term: any) {
     this.loading = true;
-    if (term != "") {
+    if (term.trim != "") {
       setTimeout(() => {
         WikibaseApiUtilsRequest.findItem(term)
           .then(res => {

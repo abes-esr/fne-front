@@ -232,7 +232,7 @@ export default class PersonNoticeInput extends Vue {
 
   validate(): void {
     if (this.formValid.validate()) {
-      if (this.$route.params.itemId !== undefined) {
+      if (typeof this.$route.params.itemId !== "undefined") {
         this.personNoticeUpdate = {
           itemId: this.$route.params.itemId,
           firstName: this.personNotice.firstName,

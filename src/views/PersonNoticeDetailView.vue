@@ -62,7 +62,7 @@ export default class PersonNoticeDetailView extends Vue {
   };
 
   async mounted() {
-    if (this.$route.params.itemId !== undefined) {
+    if (typeof this.$route.params.itemId !== "undefined") {
       await this.personNoticeByItemId(this.$route.params.itemId);
     }
   }
@@ -72,13 +72,13 @@ export default class PersonNoticeDetailView extends Vue {
       this.personNotice.firstName + ", " + this.personNotice.lastName;
     if (
       this.personNotice.dateBirth !== "" &&
-      this.personNotice.dateBirth !== null
+      this.personNotice.dateBirth != null
     ) {
       noticeTitle +=
         " ( " + this.personNotice.dateBirth.substring(0, 4) + " - ";
       if (
         this.personNotice.dateDead !== "" &&
-        this.personNotice.dateDead !== null
+        this.personNotice.dateDead != null
       ) {
         noticeTitle += this.personNotice.dateDead + " )";
       } else {
