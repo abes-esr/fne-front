@@ -31,6 +31,7 @@
             <v-text-field
               v-if="dateBirthYearOnly"
               v-model.trim="personNotice.dateBirth"
+              :value="addDateBirth"
               :rules="dateRules"
               :max="4"
               counter
@@ -77,6 +78,7 @@
             <v-text-field
               v-if="dateDeadYearOnly"
               v-model.trim="personNotice.dateDead"
+              :value="addDateDead"
               :rules="dateRules"
               :min="4"
               :max="4"
@@ -214,7 +216,8 @@ export default class PersonNoticeInput extends Vue {
   dateRules = [
     (v: any) => (v && v.length == 4) || "Max 4 caractères",
     (v: any) =>
-      /([1-2]([0-9]{2})([x]|[0-9]))/.test(v) || "La date n'est pas valide"
+      /([1-2]([X]|[0-9])([X]|[0-9])([X]|[0-9]))/.test(v) ||
+      "La date n'est pas valide"
   ];
 
   get formValid(): Vue & { validate: () => boolean } {
@@ -224,9 +227,25 @@ export default class PersonNoticeInput extends Vue {
     return this.$refs.noticeForm as Vue & { reset: () => boolean };
   }
   get addDateBirth() {
+    if (this.personNotice.dateBirth != null) {
+      if (this.personNotice.dateBirth.includes("X")) {
+        const indexOfX = this.personNotice.dateBirth.lastIndexOf("X");
+        for (let i = indexOfX; i < 3; i++) {
+          this.personNotice.dateBirth += "X";
+        }
+      }
+    }
     return this.personNotice.dateBirth;
   }
   get addDateDead() {
+    if (this.personNotice.dateDead != null) {
+      if (this.personNotice.dateDead.includes("X")) {
+        const indexOfX = this.personNotice.dateDead.lastIndexOf("X");
+        for (let i = indexOfX; i < 3; i++) {
+          this.personNotice.dateDead += "X";
+        }
+      }
+    }
     return this.personNotice.dateDead;
   }
 
