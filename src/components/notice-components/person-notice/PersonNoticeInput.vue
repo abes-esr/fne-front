@@ -252,14 +252,20 @@ export default class PersonNoticeInput extends Vue {
   }
 
   get selectDateBirth(): boolean {
-    if (this.personNotice.dateBirth.length === 4) {
+    if (
+      this.personNotice.dateBirth != null &&
+      this.personNotice.dateBirth.length === 4
+    ) {
       this.dateBirthYearOnly = true;
     }
     return this.dateBirthYearOnly;
   }
 
   get selectDateDead(): boolean {
-    if (this.personNotice.dateDead.length === 4) {
+    if (
+      this.personNotice.dateDead != null &&
+      this.personNotice.dateDead.length === 4
+    ) {
       this.dateDeadYearOnly = true;
     }
     return this.dateDeadYearOnly;
