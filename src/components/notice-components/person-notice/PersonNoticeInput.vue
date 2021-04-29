@@ -71,6 +71,7 @@
               </v-menu>
             </v-layout>
             <v-checkbox
+              :value="selectDateBirth"
               v-model="dateBirthYearOnly"
               label="L'année uniquement"
             ></v-checkbox>
@@ -117,6 +118,7 @@
             </v-layout>
 
             <v-checkbox
+              :value="selectDateDead"
               v-model="dateDeadYearOnly"
               label="L'année uniquement"
             ></v-checkbox>
@@ -249,6 +251,20 @@ export default class PersonNoticeInput extends Vue {
     return this.personNotice.dateDead;
   }
 
+  get selectDateBirth(): boolean {
+    if (this.personNotice.dateBirth.length === 4) {
+      this.dateBirthYearOnly = true;
+    }
+    return this.dateBirthYearOnly;
+  }
+
+  get selectDateDead(): boolean {
+    if (this.personNotice.dateDead.length === 4) {
+      this.dateDeadYearOnly = true;
+    }
+    return this.dateDeadYearOnly;
+  }
+
   validate(): void {
     if (this.formValid.validate()) {
       if (typeof this.$route.params.itemId !== "undefined") {
@@ -275,12 +291,16 @@ export default class PersonNoticeInput extends Vue {
 
   @Watch("dateBirthYearOnly")
   cleanDateBirth() {
-    this.personNotice.dateBirth = "";
+    if (!this.dateBirthYearOnly) {
+      this.personNotice.dateBirth = "";
+    }
   }
 
   @Watch("dateDeadYearOnly")
   cleanDateDead() {
-    this.personNotice.dateDead = "";
+    if (!this.dateDeadYearOnly){
+      this.personNotice.dateDead = "";
+    }
   }
 
   @Emit("post-personnotice-action")

@@ -11,7 +11,7 @@
     color="error"
     hide-no-data
     hide-details
-    label="Cherche une notice"
+    label="Rechercher une entité"
     rounded
     solo-inverted
   ></v-autocomplete>
@@ -76,7 +76,7 @@ export default class SearchNavbar extends Vue {
   findItem(term: any) {
     this.onDebouncedSearch(term);
   }
-  // Todo
+
   @Watch("select")
   async selectItem() {
     const noticeIdComplete = this.noticeList.find(v => v.snippet == this.select)

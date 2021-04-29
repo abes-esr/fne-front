@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import PersonNoticeDetail from "@/components/notice-components/person-notice/PersonNoticeDetail.vue";
 import { PersonNoticeRequest } from "@/axios/PersonNoticeRequest";
 
@@ -74,16 +74,31 @@ export default class PersonNoticeDetailView extends Vue {
       this.personNotice.dateBirth !== "" &&
       this.personNotice.dateBirth != null
     ) {
-      noticeTitle +=
-        " ( " + this.personNotice.dateBirth.substring(0, 4) + " - ";
+      if (this.personNotice.dateBirth.includes("X")) {
+        noticeTitle +=
+          " ( " +
+          this.personNotice.dateBirth.substring(0, 4).replaceAll("X", ".") +
+          " - ";
+      } else {
+        noticeTitle +=
+          " ( " + this.personNotice.dateBirth.substring(0, 4) + " - ";
+      }
       if (
         this.personNotice.dateDead !== "" &&
         this.personNotice.dateDead != null
       ) {
-        noticeTitle += this.personNotice.dateDead + " )";
+        if (this.personNotice.dateDead.includes("X")) {
+          noticeTitle +=
+            this.personNotice.dateDead.substring(0, 4).replaceAll("X", ".") +
+            " )";
+        } else {
+          noticeTitle += this.personNotice.dateDead.substring(0, 4) + " )";
+        }
       } else {
         noticeTitle += " ... )";
       }
+    } else {
+      noticeTitle += "...";
     }
     return noticeTitle;
   }
@@ -108,6 +123,14 @@ export default class PersonNoticeDetailView extends Vue {
       name: "edit-person-notice",
       params: { itemId: this.$route.params.itemId }
     });
+  }
+
+  @Watch("$route")
+  async changeRouterParams() {
+    this.loadingPage = true;
+    if (typeof this.$route.params.itemId !== "undefined") {
+      await this.personNoticeByItemId(this.$route.params.itemId);
+    }
   }
 }
 </script>

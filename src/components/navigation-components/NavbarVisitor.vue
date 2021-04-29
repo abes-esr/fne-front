@@ -29,7 +29,7 @@ export default class NavbarVisitor extends Vue {
   logo = "FNE";
   links = [
     { namePage: "home", route: "/" },
-    { namePage: "person-notice", route: "/person-notice" }
+    { namePage: "personne", route: "/person-notice" }
   ];
 }
 </script>
