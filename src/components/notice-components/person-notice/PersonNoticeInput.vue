@@ -145,7 +145,8 @@
             ></v-text-field>
 
             <v-btn
-              :disabled="!valid"
+              :disabled="!valid || loading"
+              :loading="loading"
               color="success"
               class="mr-4"
               @click="validate"
@@ -195,6 +196,8 @@ export default class PersonNoticeInput extends Vue {
   @Prop() readonly personNotice!: Person;
   @Prop() readonly langues!: string[];
   @Prop() readonly countries!: string[];
+  @Prop() readonly resFromApi!: boolean;
+  loading = false;
   valid = true;
   dateMenuDead = false;
   dateMenuBirth = false;
@@ -272,6 +275,7 @@ export default class PersonNoticeInput extends Vue {
   }
 
   validate(): void {
+    this.loading = true;
     if (this.formValid.validate()) {
       if (typeof this.$route.params.itemId !== "undefined") {
         this.personNoticeUpdate = {
@@ -295,6 +299,10 @@ export default class PersonNoticeInput extends Vue {
     this.formReset.reset();
   }
 
+  @Watch("resFromApi")
+  resApiFromParent() {
+    this.loading = !this.resFromApi;
+  }
   @Watch("dateBirthYearOnly")
   cleanDateBirth() {
     if (!this.dateBirthYearOnly) {

@@ -22,6 +22,7 @@
             :personNotice="personNotice"
             :langues="apiLangues"
             :countries="apiCountries"
+            :resFromApi="resFromApi"
             @post-personnotice-action="postPersonNoticeAction"
             @put-personnotice-action-update="putPersonNoticeActionUpdate"
           ></person-notice-input>
@@ -155,7 +156,9 @@ export default class PersonNoticeView extends Vue {
     this.successApi = "";
     await PersonNoticeRequest.updatePersonNotice(personNoticeUpdate)
       .then(res => {
-        this.resFromApi = true;
+        setTimeout(() => {
+          this.resFromApi = true;
+        }, 2000);
         if (res.data.status == "OK") {
           const url = "http://fne-test.abes.fr/wiki/Item:" + res.data.itemId;
           this.successApi =
